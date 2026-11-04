@@ -148,6 +148,7 @@ Ionicon, and a spring scale animation on press.
 | `variant` | `"regular" \| "outline" \| "transparent"` | `regular` | Visual variant |
 | `color` | `string` | `colors.colorPrimary` | Accent used for fill/border/label |
 | `icon` | `IoniconsIconName` | — | Leading icon, sized `fontSizes.regular` |
+| `pending` | `boolean` | `false` | Shows a centered spinner instead of the icon/label and blocks presses |
 | `rounded` | `boolean` | `false` | `borderRadius: 100` |
 | `textStyle` | `TextStyle` | — | Extra styles for the label |
 | …rest | `PressableProps` | — | Forwarded to `Pressable` (including `style`) |
@@ -176,10 +177,16 @@ Behavior notes:
   Your own `onPressIn` / `onPressOut` still run, after the animation is started.
 - `style` may be a plain style object or a `Pressable` state callback; both are
   merged after the internal styles.
+- `pending` keeps the icon and label mounted at `opacity: 0` and draws an
+  `ActivityIndicator` centered on top, so the button does not resize when work
+  starts or finishes. Presses are disabled and `accessibilityState.busy` is set
+  while pending; the hidden label still provides the accessible name.
 - Icon and label are laid out in a row with `spacing.md` (8 px) between them.
 
 ```tsx
 <ThemedButton size="lg" onPress={save}>Save entry</ThemedButton>
+
+<ThemedButton size="lg" pending>Saving…</ThemedButton>
 
 <ThemedButton variant="outline" icon="add-outline" color={colors.colorAccent}>
   New note

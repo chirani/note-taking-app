@@ -39,6 +39,9 @@ export default function HomeScreen() {
           <ThemedButton size="xl">Regular X-Large</ThemedButton>
           <ThemedButton size="lg">Regular Large</ThemedButton>
           <ThemedButton size="md">Regular Medium</ThemedButton>
+          <ThemedButton size="md" pending>
+            Regular Medium
+          </ThemedButton>
           <ThemedButton size="md" variant="outline">
             Outline Medium
           </ThemedButton>

@@ -5,11 +5,13 @@ import {
   IoniconsIconName,
 } from "@react-native-vector-icons/ionicons";
 import {
+  ActivityIndicator,
   Pressable,
   PressableProps,
   StyleSheet,
   Text,
   TextStyle,
+  View,
 } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -37,6 +39,12 @@ export interface ThemedButtonProps extends PressableProps {
   color?: string;
   /** Optional leading Ionicon. */
   icon?: IoniconsIconName;
+  /**
+   * Shows a spinner instead of the icon and label, and disables presses.
+   * The label stays in the layout at zero opacity so the button keeps its
+   * width and accessible name.
+   */
+  pending?: boolean;
 }
 
 const ThemedButton: React.FC<ThemedButtonProps> = ({
@@ -47,6 +55,9 @@ const ThemedButton: React.FC<ThemedButtonProps> = ({
   variant = "regular",
   color,
   icon,
+  pending = false,
+  disabled,
+  accessibilityState,
   style,
   onPressIn,
   onPressOut,
@@ -103,10 +114,12 @@ const ThemedButton: React.FC<ThemedButtonProps> = ({
   };
 
   const handlePressIn = () => {
+    if (pending) return;
     scale.value = withSpring(0.9);
   };
 
   const handlePressOut = () => {
+    if (pending) return;
     scale.value = withSpring(1);
   };
 
@@ -121,6 +134,12 @@ const ThemedButton: React.FC<ThemedButtonProps> = ({
     <Animated.View style={animatedStyle}>
       <Pressable
         {...pressableProps}
+        disabled={pending || disabled}
+        accessibilityState={{
+          ...accessibilityState,
+          busy: pending || accessibilityState?.busy,
+          disabled: pending || accessibilityState?.disabled,
+        }}
         style={(state) => [
           buttonStyles.button,
           getButtonStyle(),
@@ -137,18 +156,25 @@ const ThemedButton: React.FC<ThemedButtonProps> = ({
           onPressOut?.(e);
         }}
       >
-        {icon && (
-          <Ionicons size={fontSizes.regular} color={labelColor} name={icon} />
+        <View style={[styles.content, pending && styles.contentHidden]}>
+          {icon && (
+            <Ionicons size={fontSizes.regular} color={labelColor} name={icon} />
+          )}
+          <Text
+            style={[
+              textStyles.buttonText,
+              getButtonTextStyle(),
+              textStyle,
+            ]}
+          >
+            {children}
+          </Text>
+        </View>
+        {pending && (
+          <View pointerEvents="none" style={styles.spinnerOverlay}>
+            <ActivityIndicator color={labelColor} size="small" />
+          </View>
         )}
-        <Text
-          style={[
-            textStyles.buttonText,
-            getButtonTextStyle(),
-            textStyle,
-          ]}
-        >
-          {children}
-        </Text>
       </Pressable>
     </Animated.View>
   );
@@ -165,9 +191,6 @@ const generateStyles = (accentColor: string) =>
       borderColor: accentColor,
       paddingHorizontal: 16,
       paddingVertical: 10,
-      flexDirection: "row",
-
-      gap: spacing.md,
     },
     smallButton: {
       borderRadius: 4,
@@ -215,5 +238,25 @@ const generateTypeStyles = (transparentFill: string) =>
       borderColor: "transparent",
     },
   });
+
+const styles = StyleSheet.create({
+  content: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+  },
+  contentHidden: {
+    opacity: 0,
+  },
+  spinnerOverlay: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});
 
 export default ThemedButton;
