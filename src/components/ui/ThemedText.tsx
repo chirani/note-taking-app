@@ -1,20 +1,32 @@
+import { fontSizes } from "@/config/ui";
 import React from "react";
 import {
   Text as RNText,
   TextProps as RNTextProps,
   TextStyle,
 } from "react-native";
-import { fontSizes } from "../../config/ui";
 
-interface CustomTextProps extends RNTextProps {
+export interface ThemedTextProps extends RNTextProps {
+  /**
+   * Typography preset. Defaults to `regular`.
+   * `h1`/`h2`/`h3` are bold; `regular`/`small` are normal weight.
+   */
   size?: keyof typeof fontSizes;
+  /** Overrides the text color. Applied after `style`, so it wins. */
   color?: string;
 }
-const Text: React.FC<CustomTextProps> = (props) => {
+
+const ThemedText: React.FC<ThemedTextProps> = ({
+  size,
+  color,
+  style,
+  children,
+  ...textProps
+}) => {
   let fontSize: number;
   let fontWeight: TextStyle["fontWeight"] = "normal";
 
-  switch (props.size) {
+  switch (size) {
     case "small":
       fontSize = fontSizes.small;
       fontWeight = "normal";
@@ -35,15 +47,15 @@ const Text: React.FC<CustomTextProps> = (props) => {
       fontSize = fontSizes.regular;
       fontWeight = "normal";
   }
-  const textColor = props.color ? { color: props.color } : {};
+  const textColor = color ? { color } : {};
   return (
     <RNText
-      {...props}
-      style={[{ fontSize, fontWeight }, props.style, textColor]}
+      {...textProps}
+      style={[{ fontSize, fontWeight }, style, textColor]}
     >
-      {props.children}
+      {children}
     </RNText>
   );
 };
 
-export default Text;
+export default ThemedText;

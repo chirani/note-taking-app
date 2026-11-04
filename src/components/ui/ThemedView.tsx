@@ -1,16 +1,18 @@
 import { useTheme } from "@/hooks/theme";
 import { View, type ViewProps } from "react-native";
 
-const ThemedView: React.FC<ViewProps> = (props) => {
+/**
+ * A `View` painted with the theme's `colorBase100` surface color.
+ * Any `style` passed in is merged last, so it can override the background.
+ */
+const ThemedView: React.FC<ViewProps> = ({ style, ...viewProps }) => {
   const { colors } = useTheme();
 
   return (
     <View
-      {...props}
-      style={{ backgroundColor: colors.colorBase100, ...props.style }}
-    >
-      {props.children}
-    </View>
+      {...viewProps}
+      style={[{ backgroundColor: colors.colorBase100 }, style]}
+    />
   );
 };
 

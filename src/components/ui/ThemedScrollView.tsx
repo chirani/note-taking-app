@@ -1,15 +1,23 @@
 import { useTheme } from "@/hooks/theme";
 import { ScrollView, type ScrollViewProps } from "react-native";
 
-const ThemedScrollView: React.FC<ScrollViewProps> = (props) => {
+/**
+ * A `ScrollView` painted with the theme's `colorBase100` surface color.
+ * Any `style` passed in is merged last, so it can override the background.
+ */
+const ThemedScrollView: React.FC<ScrollViewProps> = ({
+  style,
+  children,
+  ...scrollViewProps
+}) => {
   const { colors } = useTheme();
 
   return (
     <ScrollView
-      {...props}
-      style={{ backgroundColor: colors.colorBase100, ...props.style }}
+      {...scrollViewProps}
+      style={[{ backgroundColor: colors.colorBase100 }, style]}
     >
-      {props.children}
+      {children}
     </ScrollView>
   );
 };

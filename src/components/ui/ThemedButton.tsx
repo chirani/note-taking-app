@@ -1,4 +1,4 @@
-import { buttonFontSize, fontSizes, spacing } from "@/config/ui";
+import { buttonFontSizes, fontSizes, spacing } from "@/config/ui";
 import { useTheme } from "@/hooks/theme";
 import {
   Ionicons,
@@ -17,52 +17,58 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 
-interface ButtonProps extends PressableProps {
+export interface ThemedButtonProps extends PressableProps {
+  /** Fully round the corners (borderRadius: 100). */
   rounded?: boolean;
-  title?: string;
+  /** Label text. */
   children?: string;
+  /** Extra styles merged into the label `Text`. */
   textStyle?: TextStyle;
+  /** Padding/radius/font-size preset. Defaults to `md`. */
   size?: "sm" | "md" | "lg" | "xl";
-  type?: "regular" | "outline" | "transparent";
+  /**
+   * Visual variant. Defaults to `regular`.
+   * - `regular`: filled with `color`.
+   * - `outline`: transparent fill, `color` border and label.
+   * - `transparent`: muted fill, no border, `color` label.
+   */
+  variant?: "regular" | "outline" | "transparent";
+  /** Accent color. Defaults to the theme's `colorPrimary`. */
   color?: string;
+  /** Optional leading Ionicon. */
   icon?: IoniconsIconName;
 }
 
-const ThemedButton: React.FC<ButtonProps> = (props) => {
+const ThemedButton: React.FC<ThemedButtonProps> = ({
+  rounded,
+  children,
+  textStyle,
+  size,
+  variant = "regular",
+  color,
+  icon,
+  style,
+  onPressIn,
+  onPressOut,
+  ...pressableProps
+}) => {
   const { colors } = useTheme();
-  const isPressed = useSharedValue(false);
   const scale = useSharedValue(1);
 
-  const buttonStyles = generateStyles(props.color ?? colors.colorPrimary);
-  const buttonTextTypeStyles = generateButtonTextTypeStyle(
-    props.color ?? colors.colorPrimary,
-  );
+  const accentColor = color ?? colors.colorPrimary;
+  // Filled buttons put the label on the accent fill; all other variants
+  // render the label in the accent color itself.
+  const labelColor =
+    variant === "regular" ? colors.colorBase100 : accentColor;
 
-  const buttonTypeStyles = generateButtonTypeStyles(
-    colors.colorsecondaryContent,
-  );
-
-  const buttonTextColor = () => {
-    switch (props.type) {
-      case "regular":
-        return colors.colorBase100;
-      case "transparent":
-        return colors.colorBaseContent;
-      case "outline":
-        return colors.colorBaseContent;
-      default:
-        return colors.colorBase100;
-    }
-  };
-
-  const textStyles = generateTextStyles(buttonTextColor());
+  const buttonStyles = generateStyles(accentColor);
+  const textStyles = generateTextStyles(labelColor);
+  const typeStyles = generateTypeStyles(colors.colorsecondaryContent);
 
   const getButtonStyle = () => {
-    switch (props.size) {
+    switch (size) {
       case "sm":
         return buttonStyles.smallButton;
-      case "md":
-        return {};
       case "lg":
         return buttonStyles.largeButton;
       case "xl":
@@ -73,11 +79,9 @@ const ThemedButton: React.FC<ButtonProps> = (props) => {
   };
 
   const getButtonTextStyle = () => {
-    switch (props.size) {
+    switch (size) {
       case "sm":
         return textStyles.smallButtonText;
-      case "md":
-        return {};
       case "lg":
         return textStyles.largeButtonText;
       case "xl":
@@ -88,38 +92,21 @@ const ThemedButton: React.FC<ButtonProps> = (props) => {
   };
 
   const getButtonTypeStyle = () => {
-    switch (props.type) {
-      case "regular":
-        return buttonTypeStyles.regular;
-      case "transparent":
-        return buttonTypeStyles.transparent;
+    switch (variant) {
       case "outline":
-        return buttonTypeStyles.outline;
-      default:
-        return {};
-    }
-  };
-
-  const getButtonTextTypeStyle = () => {
-    switch (props.type) {
-      case "regular":
-        return buttonTextTypeStyles.regular;
+        return typeStyles.outline;
       case "transparent":
-        return buttonTextTypeStyles.transparent;
-      case "outline":
-        return buttonTextTypeStyles.outline;
+        return typeStyles.transparent;
       default:
-        return {};
+        return typeStyles.regular;
     }
   };
 
   const handlePressIn = () => {
-    isPressed.value = true;
     scale.value = withSpring(0.9);
   };
 
   const handlePressOut = () => {
-    isPressed.value = false;
     scale.value = withSpring(1);
   };
 
@@ -129,58 +116,53 @@ const ThemedButton: React.FC<ButtonProps> = (props) => {
     };
   });
 
-  const roundedBorder = props?.rounded ? { borderRadius: 100 } : {};
+  const roundedBorder = rounded ? { borderRadius: 100 } : {};
   return (
     <Animated.View style={animatedStyle}>
       <Pressable
-        {...props}
-        style={[
+        {...pressableProps}
+        style={(state) => [
           buttonStyles.button,
           getButtonStyle(),
           getButtonTypeStyle(),
           roundedBorder,
-          { ...props.style },
+          typeof style === "function" ? style(state) : style,
         ]}
         onPressIn={(e) => {
           handlePressIn();
-          props.onPressIn && props.onPressIn(e);
+          onPressIn?.(e);
         }}
         onPressOut={(e) => {
           handlePressOut();
-          props.onPressOut && props.onPressOut(e);
+          onPressOut?.(e);
         }}
       >
-        {props.icon && (
-          <Ionicons
-            size={fontSizes.regular}
-            color={buttonTextColor()}
-            name={props.icon}
-          />
+        {icon && (
+          <Ionicons size={fontSizes.regular} color={labelColor} name={icon} />
         )}
         <Text
           style={[
             textStyles.buttonText,
             getButtonTextStyle(),
-            getButtonTextTypeStyle(),
-            props.textStyle,
+            textStyle,
           ]}
         >
-          {props.children ?? props.title}
+          {children}
         </Text>
       </Pressable>
     </Animated.View>
   );
 };
 
-const generateStyles = (primaryColor: string) =>
+const generateStyles = (accentColor: string) =>
   StyleSheet.create({
     button: {
       borderRadius: 6,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: primaryColor,
+      backgroundColor: accentColor,
       borderWidth: 2,
-      borderColor: primaryColor,
+      borderColor: accentColor,
       paddingHorizontal: 16,
       paddingVertical: 10,
       flexDirection: "row",
@@ -204,44 +186,33 @@ const generateStyles = (primaryColor: string) =>
     },
   });
 
-const generateTextStyles = (buttonTextColor: string) =>
+const generateTextStyles = (labelColor: string) =>
   StyleSheet.create({
     buttonText: {
-      fontSize: buttonFontSize.medium,
+      fontSize: buttonFontSizes.medium,
       fontWeight: "400",
-      color: buttonTextColor,
+      color: labelColor,
     },
     smallButtonText: {
-      fontSize: buttonFontSize.small,
+      fontSize: buttonFontSizes.small,
     },
     largeButtonText: {
-      fontSize: buttonFontSize.large,
+      fontSize: buttonFontSizes.large,
     },
     xlargeButtonText: {
-      fontSize: 20,
+      fontSize: buttonFontSizes.xlarge,
     },
   });
 
-const generateButtonTypeStyles = (accentColor: string) =>
+const generateTypeStyles = (transparentFill: string) =>
   StyleSheet.create({
     regular: {},
     outline: {
       backgroundColor: "transparent",
     },
     transparent: {
-      backgroundColor: accentColor,
+      backgroundColor: transparentFill,
       borderColor: "transparent",
-    },
-  });
-
-const generateButtonTextTypeStyle = (primaryColor: string) =>
-  StyleSheet.create({
-    regular: {},
-    outline: {
-      color: primaryColor,
-    },
-    transparent: {
-      color: primaryColor,
     },
   });
 

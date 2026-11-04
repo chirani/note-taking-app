@@ -8,15 +8,27 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-const ThemedTextInput: React.FC<TextInputProps> = (props) => {
+export interface ThemedTextInputProps extends TextInputProps {
+  /** Renders the border in the theme's error color. */
+  hasError?: boolean;
+}
+
+const ThemedTextInput: React.FC<ThemedTextInputProps> = ({
+  hasError,
+  style,
+  onFocus,
+  onBlur,
+  ...inputProps
+}) => {
   const { colors } = useTheme();
   const progress = useSharedValue(0);
 
   const animatedStyle = useAnimatedStyle(() => {
+    const restingColor = hasError ? colors.colorError : colors.colorBase300;
     const borderColor = interpolateColor(
       progress.value,
       [0, 1],
-      [colors.colorBase300, colors.colorSecondary],
+      [restingColor, colors.colorSecondary],
     );
 
     return { borderColor };
@@ -28,45 +40,37 @@ const ThemedTextInput: React.FC<TextInputProps> = (props) => {
     });
   };
 
-  const textInputStyles = generateTextInputStyles(
-    colors.coloraccentContent,
-    colors.colorError,
-  );
-
   return (
     <Animated.View
-      {...props}
-      style={[{ borderWidth: 1.5, borderRadius: 8 }, animatedStyle]}
+      style={[textInputStyles.container, animatedStyle]}
     >
       <TextInput
-        {...props}
+        {...inputProps}
         placeholderTextColor={colors.colorBaseContent}
         onFocus={(e) => {
           toggleColor(1);
-          props.onFocus && props.onFocus(e);
+          onFocus?.(e);
         }}
         onBlur={(e) => {
           toggleColor(0);
-          props.onBlur && props.onBlur(e);
+          onBlur?.(e);
         }}
-        style={[textInputStyles.input, props.style]}
+        style={[textInputStyles.input, style]}
       />
     </Animated.View>
   );
 };
 
-const generateTextInputStyles = (colorBase300: string, colorError: string) =>
-  StyleSheet.create({
-    input: {
-      height: 50,
-      borderColor: colorBase300,
-
-      paddingHorizontal: 14,
-      fontSize: fontSizes.regular,
-    },
-    inputError: {
-      borderColor: colorError,
-    },
-  });
+const textInputStyles = StyleSheet.create({
+  container: {
+    borderWidth: 1.5,
+    borderRadius: 8,
+  },
+  input: {
+    height: 50,
+    paddingHorizontal: 14,
+    fontSize: fontSizes.regular,
+  },
+});
 
 export default ThemedTextInput;

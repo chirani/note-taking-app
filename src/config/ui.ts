@@ -14,7 +14,7 @@ export const fontSizes = {
   h1: 32,
 };
 
-export const buttonFontSize = {
+export const buttonFontSizes = {
   xlarge: 22,
   large: 20,
   medium: 18,
