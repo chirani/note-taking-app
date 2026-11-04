@@ -19,14 +19,14 @@ export default function TabLayout() {
 
   return (
     <>
-      <StatusBar animated />
+      <StatusBar animated={false} />
       <Stack
         screenOptions={{
           headerShown: false,
         }}
       >
         <Stack.Screen
-          name="index"
+          name="design"
           options={{
             contentStyle: { backgroundColor: colors.colorBase100 },
           }}
