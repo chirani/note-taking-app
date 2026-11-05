@@ -1,9 +1,5 @@
-import { ThemedText } from "@/components/ui";
+import { Redirect } from "expo-router";
 
-const IndexPage = () => (
-  <>
-    <ThemedText>This is Index</ThemedText>
-  </>
-);
+const IndexPage = () => <Redirect href="/design" />;
 
 export default IndexPage;

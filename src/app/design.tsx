@@ -1,14 +1,22 @@
 import {
   ThemedButton,
+  ThemedCheckbox,
+  ThemedIconButton,
   ThemedScrollView,
   ThemedText,
   ThemedTextInput,
+  ThemedToggle,
 } from "@/components/ui";
 import { useTheme } from "@/hooks/theme";
+import { useState } from "react";
 import { View } from "react-native";
 
 export default function DesignScreen() {
   const { colors } = useTheme();
+  const [toggleValue, setToggleValue] = useState(false);
+  const [largeToggleValue, setLargeToggleValue] = useState(true);
+  const [checkboxChecked, setCheckboxChecked] = useState(false);
+  const [largeCheckboxChecked, setLargeCheckboxChecked] = useState(true);
 
   return (
     <>
@@ -55,6 +63,164 @@ export default function DesignScreen() {
             Transparent Medium
           </ThemedButton>
           <ThemedButton size="sm">Regular Small</ThemedButton>
+        </View>
+        <View style={{ height: 16 }} />
+        <View style={{ gap: 16, alignItems: "flex-start" }}>
+          <ThemedText
+            size="h3"
+            color={colors.colorSecondary}
+            style={{ marginBottom: 16 }}
+          >
+            Icon Button Styles
+          </ThemedText>
+          <View
+            style={{ flexDirection: "row", alignItems: "center", gap: 16 }}
+          >
+            <ThemedIconButton icon="add" accessibilityLabel="Add" />
+            <ThemedIconButton
+              icon="add"
+              accessibilityLabel="Add"
+              shape="rounded"
+            />
+            <ThemedIconButton
+              icon="add"
+              accessibilityLabel="Add"
+              variant="outline"
+            />
+            <ThemedIconButton
+              icon="add"
+              accessibilityLabel="Add"
+              variant="transparent"
+              shape="rounded"
+            />
+          </View>
+          <View
+            style={{ flexDirection: "row", alignItems: "center", gap: 16 }}
+          >
+            <ThemedIconButton
+              icon="heart"
+              accessibilityLabel="Favorite"
+              size="sm"
+            />
+            <ThemedIconButton
+              icon="heart"
+              accessibilityLabel="Favorite"
+              size="md"
+            />
+            <ThemedIconButton
+              icon="heart"
+              accessibilityLabel="Favorite"
+              size="lg"
+            />
+            <ThemedIconButton
+              icon="heart"
+              accessibilityLabel="Favorite"
+              size="xl"
+              shape="rounded"
+            />
+          </View>
+          <View
+            style={{ flexDirection: "row", alignItems: "center", gap: 16 }}
+          >
+            <ThemedIconButton
+              icon="trash"
+              accessibilityLabel="Delete"
+              disabled
+            />
+            <ThemedIconButton
+              icon="trash"
+              accessibilityLabel="Delete"
+              shape="rounded"
+              disabled
+            />
+          </View>
+        </View>
+        <View style={{ height: 16 }} />
+        <View style={{ gap: 16, alignItems: "flex-start" }}>
+          <ThemedText
+            size="h3"
+            color={colors.colorSecondary}
+            style={{ marginBottom: 16 }}
+          >
+            Toggle Styles
+          </ThemedText>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
+            <ThemedToggle value={toggleValue} onValueChange={setToggleValue} />
+            <ThemedText size="small" color={colors.colorBaseContent}>
+              {toggleValue ? "On" : "Off"}
+            </ThemedText>
+          </View>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
+            <ThemedToggle
+              size="sm"
+              value={toggleValue}
+              onValueChange={setToggleValue}
+            />
+            <ThemedText size="small" color={colors.colorBaseContent}>
+              Small
+            </ThemedText>
+          </View>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
+            <ThemedToggle
+              size="lg"
+              value={largeToggleValue}
+              onValueChange={setLargeToggleValue}
+            />
+            <ThemedText size="small" color={colors.colorBaseContent}>
+              Large
+            </ThemedText>
+          </View>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
+            <ThemedToggle value disabled />
+            <ThemedText size="small" color={colors.colorBaseContent}>
+              Disabled
+            </ThemedText>
+          </View>
+        </View>
+        <View style={{ height: 16 }} />
+        <View style={{ gap: 16, alignItems: "flex-start" }}>
+          <ThemedText
+            size="h3"
+            color={colors.colorSecondary}
+            style={{ marginBottom: 16 }}
+          >
+            Checkbox Styles
+          </ThemedText>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
+            <ThemedCheckbox
+              checked={checkboxChecked}
+              onCheckedChange={setCheckboxChecked}
+            />
+            <ThemedText size="small" color={colors.colorBaseContent}>
+              {checkboxChecked ? "Checked" : "Unchecked"}
+            </ThemedText>
+          </View>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
+            <ThemedCheckbox
+              size="sm"
+              checked={checkboxChecked}
+              onCheckedChange={setCheckboxChecked}
+            />
+            <ThemedText size="small" color={colors.colorBaseContent}>
+              Small
+            </ThemedText>
+          </View>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
+            <ThemedCheckbox
+              size="lg"
+              checked={largeCheckboxChecked}
+              onCheckedChange={setLargeCheckboxChecked}
+            />
+            <ThemedText size="small" color={colors.colorBaseContent}>
+              Large
+            </ThemedText>
+          </View>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
+            <ThemedCheckbox checked disabled />
+            <ThemedText size="small" color={colors.colorBaseContent}>
+              Disabled
+            </ThemedText>
+          </View>
         </View>
         <View style={{ height: 16 }} />
         <View style={{ gap: 16, alignItems: "stretch" }}>

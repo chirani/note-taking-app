@@ -14,17 +14,23 @@ Everything is re-exported from the folder's barrel:
 ```tsx
 import {
   ThemedButton,
+  ThemedCheckbox,
+  ThemedIconButton,
   ThemedScrollView,
   ThemedText,
   ThemedTextInput,
+  ThemedToggle,
   ThemedView,
 } from "@/components/ui";
 
 // Types
 import type {
   ThemedButtonProps,
+  ThemedCheckboxProps,
+  ThemedIconButtonProps,
   ThemedTextInputProps,
   ThemedTextProps,
+  ThemedToggleProps,
 } from "@/components/ui";
 ```
 
@@ -35,12 +41,12 @@ etc.), but prefer the barrel.
 
 | Token | Used by | Purpose |
 | --- | --- | --- |
-| `colorBase100` | `ThemedView`, `ThemedScrollView`, `ThemedButton` | Screen surface; label color on a filled button |
+| `colorBase100` | `ThemedView`, `ThemedScrollView`, `ThemedButton`, `ThemedIconButton`, `ThemedToggle`, `ThemedCheckbox` | Screen surface; label color on a filled button; filled icon-button icon; toggle thumb; checkmark |
 | `colorBaseContent` | `ThemedTextInput` | Placeholder text |
-| `colorBase300` | `ThemedTextInput` | Resting (blurred) border |
+| `colorBase300` | `ThemedTextInput`, `ThemedToggle`, `ThemedCheckbox` | Resting border; toggle track when off; checkbox border when unchecked |
 | `colorSecondary` | `ThemedTextInput` | Focused border |
-| `colorPrimary` | `ThemedButton` | Default accent when no `color` prop is given |
-| `colorsecondaryContent` | `ThemedButton` | Fill for the `transparent` variant |
+| `colorPrimary` | `ThemedButton`, `ThemedIconButton`, `ThemedToggle`, `ThemedCheckbox` | Default accent when no `color` prop is given |
+| `colorsecondaryContent` | `ThemedButton`, `ThemedIconButton` | Fill for the `transparent` variant |
 | `colorError` | `ThemedTextInput` | Border when `hasError` is set |
 
 Full token list (including ones not yet used here): `ThemeColors` in
@@ -55,9 +61,11 @@ Full token list (including ones not yet used here): `ThemeColors` in
   DOM/React attribute.
 - Boolean props read as predicates: `hasError`, `rounded`. Prefer `hasError`
   over `error` so the name cannot be mistaken for an error object.
-- Size vocabularies differ by component on purpose: buttons use
-  `sm | md | lg | xl`, text uses the typography scale
-  `small | regular | h3 | h2 | h1`.
+- Size vocabularies differ by component on purpose: buttons, icon buttons, and
+  toggles/checkboxes use `sm | md | lg | xl` / `sm | md | lg`, text uses the
+  typography scale `small | regular | h3 | h2 | h1`.
+- Controls are controlled-only: toggles expect `value` + `onValueChange`, and
+  checkboxes expect `checked` + `onCheckedChange`.
 - One-off helpers are named `generate*` and return `StyleSheet.create` output.
 
 `src/constants/theme.ts` is a separate, legacy token system (`Colors`, `Fonts`,
@@ -195,6 +203,155 @@ Behavior notes:
 <ThemedButton variant="transparent" size="sm" rounded>
   Cancel
 </ThemedButton>
+```
+
+---
+
+## ThemedIconButton
+
+An icon-only `Pressable` with the same variants and press animation as
+`ThemedButton`. It is always equal width and height, and takes an Ionicon
+instead of a label.
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `icon` | `IoniconsIconName` | — | Required Ionicon name |
+| `shape` | `"square" \| "rounded"` | `square` | `square` keeps the size's small radius; `rounded` is a full circle |
+| `size` | `"sm" \| "md" \| "lg" \| "xl"` | `md` | Box/icon preset |
+| `variant` | `"regular" \| "outline" \| "transparent"` | `regular` | Visual variant |
+| `color` | `string` | `colors.colorPrimary` | Accent used for fill/border/icon |
+| `disabled` | `boolean` | `false` | Blocks presses and dims the button to 50% opacity |
+| `accessibilityLabel` | `string` | — | Required; icon-only buttons have no visible text |
+| …rest | `PressableProps` | — | Forwarded to `Pressable` (including `style`) |
+
+Sizes:
+
+| `size` | Box | Square radius | Icon |
+| --- | --- | --- | --- |
+| `sm` | 32 | 4 | 16 |
+| `md` | 40 | 6 | 20 |
+| `lg` | 48 | 8 | 24 |
+| `xl` | 56 | 10 | 28 |
+
+Variants:
+
+| `variant` | Background | Border | Icon |
+| --- | --- | --- | --- |
+| `regular` | accent `color` | accent `color`, 2 px | `colorBase100` |
+| `outline` | transparent | accent `color`, 2 px | accent `color` |
+| `transparent` | `colorsecondaryContent` | transparent | accent `color` |
+
+Behavior notes:
+
+- On press-in the button springs to `scale: 0.9`, and back to `1` on press-out.
+  Your own `onPressIn` / `onPressOut` still run, after the animation is started.
+- `style` may be a plain style object or a `Pressable` state callback; both are
+  merged after the internal styles.
+- `accessibilityRole="button"` is set automatically, and `accessibilityLabel` is
+  required in the prop type so every icon button has an accessible name.
+- Like `ThemedButton`, the animated scale lives on an outer `Animated.View`, so
+  layout styles passed via `style` size the inner `Pressable`.
+
+```tsx
+<ThemedIconButton icon="add" accessibilityLabel="Add note" />
+
+<ThemedIconButton
+  icon="heart"
+  accessibilityLabel="Favorite"
+  shape="rounded"
+  variant="outline"
+  color={colors.colorAccent}
+/>
+
+<ThemedIconButton
+  icon="trash"
+  accessibilityLabel="Delete entry"
+  size="sm"
+  variant="transparent"
+  disabled
+/>
+```
+
+---
+
+## ThemedToggle
+
+A `Pressable` pill switch with a sliding thumb. The track eases between
+`colorBase300` when off and the accent color when on; the whole control springs
+to `0.96` while pressed.
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `boolean` | `false` | Current value (controlled) |
+| `onValueChange` | `(value: boolean) => void` | — | Called with the next value on press |
+| `size` | `"sm" \| "md" \| "lg"` | `md` | Track/thumb preset |
+| `color` | `string` | `colors.colorPrimary` | Track color when on |
+| `disabled` | `boolean` | `false` | Blocks presses and dims the control to 50% opacity |
+| …rest | `PressableProps` | — | Forwarded to `Pressable` (including `style`, `onPress`) |
+
+Sizes:
+
+| `size` | Track (W × H) | Thumb | Inset |
+| --- | --- | --- | --- |
+| `sm` | 40 × 24 | 18 | 3 |
+| `md` | 50 × 28 | 22 | 3 |
+| `lg` | 60 × 34 | 28 | 3 |
+
+Behavior notes:
+
+- Controlled-only: pass `value` and update it from `onValueChange`. Without a
+  state update the toggle will not move.
+- The thumb is `colorBase100` and slides with `withSpring`; the track color uses
+  `interpolateColor` over 200 ms.
+- `accessibilityRole="switch"` and `accessibilityState.checked` are set from
+  `value`; `disabled` is reflected in `accessibilityState` and blocks presses.
+
+```tsx
+<ThemedToggle value={notifications} onValueChange={setNotifications} />
+<ThemedToggle size="lg" value={true} onValueChange={setEnabled} />
+<ThemedToggle value={false} disabled />
+```
+
+---
+
+## ThemedCheckbox
+
+A `Pressable` checkbox with an animated checkmark. Unchecked it shows a
+`colorBase300` outline; checked it fills with the accent color and springs the
+checkmark into view.
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `checked` | `boolean` | `false` | Whether the box is checked (controlled) |
+| `onCheckedChange` | `(checked: boolean) => void` | — | Called with the next state on press |
+| `size` | `"sm" \| "md" \| "lg"` | `md` | Box preset |
+| `color` | `string` | `colors.colorPrimary` | Fill and border color when checked |
+| `disabled` | `boolean` | `false` | Blocks presses and dims the control to 50% opacity |
+| …rest | `PressableProps` | — | Forwarded to `Pressable` (including `style`, `hitSlop`) |
+
+Sizes:
+
+| `size` | Box | Radius | Icon |
+| --- | --- | --- | --- |
+| `sm` | 20 | 5 | 14 |
+| `md` | 24 | 6 | 16 |
+| `lg` | 30 | 8 | 20 |
+
+Behavior notes:
+
+- Controlled-only: pass `checked` and update it from `onCheckedChange`. Without a
+  state update the box will not change.
+- The fill and border animate with `interpolateColor` over 200 ms; the Ionicons
+  `checkmark` fades in and scales from `0.5` to `1`.
+- `sm` boxes get `hitSlop: 8` by default so the touch target stays usable; pass
+  your own `hitSlop` to override it.
+- `accessibilityRole="checkbox"` and `accessibilityState.checked` are set from
+  `checked`; `disabled` is reflected in `accessibilityState` and blocks presses.
+
+```tsx
+<ThemedCheckbox checked={rememberMe} onCheckedChange={setRememberMe} />
+<ThemedCheckbox size="lg" checked={selected} onCheckedChange={setSelected} />
+<ThemedCheckbox checked={true} disabled />
 ```
 
 ---

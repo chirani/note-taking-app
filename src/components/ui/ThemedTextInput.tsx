@@ -35,9 +35,11 @@ const ThemedTextInput: React.FC<ThemedTextInputProps> = ({
   });
 
   const toggleColor = (progressValue: number) => {
-    progress.value = withTiming(progressValue, {
-      duration: 500,
-    });
+    progress.set(
+      withTiming(progressValue, {
+        duration: 500,
+      }),
+    );
   };
 
   return (
