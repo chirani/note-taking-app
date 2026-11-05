@@ -3,7 +3,7 @@ import {
   Ionicons,
   IoniconsIconName,
 } from "@react-native-vector-icons/ionicons";
-import { BottomTabBarProps } from "expo-router/build/react-navigation/bottom-tabs";
+import type { BottomTabBarProps } from "expo-router/tabs";
 import { useEffect } from "react";
 import { Dimensions, Text, TouchableOpacity } from "react-native";
 import Animated, { useSharedValue, withSpring } from "react-native-reanimated";
@@ -22,7 +22,12 @@ const RouteInfo: Record<string, { icon: IoniconsIconName; title: string }> = {
   },
 };
 
-const MainTabbar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
+const MainTabbar = ({
+  state,
+  descriptors,
+  emitter,
+  navigateToTab,
+}: BottomTabBarProps) => {
   const { colors } = useTheme();
   const translateX = useSharedValue(0);
 
@@ -33,7 +38,7 @@ const MainTabbar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
         duration: 300,
       },
     );
-  }, [state.index]);
+  }, [state.index, state.routes.length, translateX]);
 
   return (
     <>
@@ -66,19 +71,19 @@ const MainTabbar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
           const isFocused = state.index === index;
 
           const onPress = () => {
-            const event = navigation.emit({
+            const event = emitter.emit({
               type: "tabPress",
               target: route.key,
               canPreventDefault: true,
             });
 
             if (!isFocused && !event.defaultPrevented) {
-              navigation.navigate(route.name, route.params);
+              navigateToTab(route.key);
             }
           };
 
           const onLongPress = () => {
-            navigation.emit({
+            emitter.emit({
               type: "tabLongPress",
               target: route.key,
             });
