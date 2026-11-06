@@ -1,6 +1,7 @@
 import ThemedButton from "./ThemedButton";
 import ThemedCheckbox from "./ThemedCheckbox";
 import ThemedIconButton from "./ThemedIconButton";
+import ThemedRadioButton from "./ThemedRadioButton";
 import ThemedScrollView from "./ThemedScrollView";
 import ThemedText from "./ThemedText";
 import ThemedTextInput from "./ThemedTextInput";
@@ -10,6 +11,7 @@ import ThemedView from "./ThemedView";
 export type { ThemedButtonProps } from "./ThemedButton";
 export type { ThemedCheckboxProps } from "./ThemedCheckbox";
 export type { ThemedIconButtonProps } from "./ThemedIconButton";
+export type { ThemedRadioButtonProps } from "./ThemedRadioButton";
 export type { ThemedTextProps } from "./ThemedText";
 export type { ThemedTextInputProps } from "./ThemedTextInput";
 export type { ThemedToggleProps } from "./ThemedToggle";
@@ -18,6 +20,7 @@ export {
   ThemedButton,
   ThemedCheckbox,
   ThemedIconButton,
+  ThemedRadioButton,
   ThemedScrollView,
   ThemedText,
   ThemedTextInput,

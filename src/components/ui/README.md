@@ -16,6 +16,7 @@ import {
   ThemedButton,
   ThemedCheckbox,
   ThemedIconButton,
+  ThemedRadioButton,
   ThemedScrollView,
   ThemedText,
   ThemedTextInput,
@@ -28,6 +29,7 @@ import type {
   ThemedButtonProps,
   ThemedCheckboxProps,
   ThemedIconButtonProps,
+  ThemedRadioButtonProps,
   ThemedTextInputProps,
   ThemedTextProps,
   ThemedToggleProps,
@@ -41,11 +43,11 @@ etc.), but prefer the barrel.
 
 | Token | Used by | Purpose |
 | --- | --- | --- |
-| `colorBase100` | `ThemedView`, `ThemedScrollView`, `ThemedButton`, `ThemedIconButton`, `ThemedToggle`, `ThemedCheckbox` | Screen surface; label color on a filled button; filled icon-button icon; toggle thumb; checkmark |
+| `colorBase100` | `ThemedView`, `ThemedScrollView`, `ThemedButton`, `ThemedIconButton`, `ThemedToggle`, `ThemedCheckbox`, `ThemedRadioButton` | Screen surface; label color on a filled button; filled icon-button icon; toggle thumb; checkmark; radio dot |
 | `colorBaseContent` | `ThemedTextInput` | Placeholder text |
-| `colorBase300` | `ThemedTextInput`, `ThemedToggle`, `ThemedCheckbox` | Resting border; toggle track when off; checkbox border when unchecked |
+| `colorBase300` | `ThemedTextInput`, `ThemedToggle`, `ThemedCheckbox`, `ThemedRadioButton` | Resting border; toggle track when off; checkbox/radio border when unchecked |
 | `colorSecondary` | `ThemedTextInput` | Focused border |
-| `colorPrimary` | `ThemedButton`, `ThemedIconButton`, `ThemedToggle`, `ThemedCheckbox` | Default accent when no `color` prop is given |
+| `colorPrimary` | `ThemedButton`, `ThemedIconButton`, `ThemedToggle`, `ThemedCheckbox`, `ThemedRadioButton` | Default accent when no `color` prop is given |
 | `colorsecondaryContent` | `ThemedButton`, `ThemedIconButton` | Fill for the `transparent` variant |
 | `colorError` | `ThemedTextInput` | Border when `hasError` is set |
 
@@ -65,7 +67,7 @@ Full token list (including ones not yet used here): `ThemeColors` in
   toggles/checkboxes use `sm | md | lg | xl` / `sm | md | lg`, text uses the
   typography scale `small | regular | h3 | h2 | h1`.
 - Controls are controlled-only: toggles expect `value` + `onValueChange`, and
-  checkboxes expect `checked` + `onCheckedChange`.
+  checkboxes and radio buttons expect `checked` + `onCheckedChange`.
 - One-off helpers are named `generate*` and return `StyleSheet.create` output.
 
 `src/constants/theme.ts` is a separate, legacy token system (`Colors`, `Fonts`,
@@ -352,6 +354,50 @@ Behavior notes:
 <ThemedCheckbox checked={rememberMe} onCheckedChange={setRememberMe} />
 <ThemedCheckbox size="lg" checked={selected} onCheckedChange={setSelected} />
 <ThemedCheckbox checked={true} disabled />
+```
+
+---
+
+## ThemedRadioButton
+
+A `Pressable` radio button with an animated dot. Unchecked it shows a
+`colorBase300` outline; checked it fills with the accent color and springs the
+dot into view. It is control-only — place a `ThemedText` next to it for a label.
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `checked` | `boolean` | `false` | Whether the radio button is checked (controlled) |
+| `onCheckedChange` | `(checked: boolean) => void` | — | Called with the next state on press |
+| `size` | `"sm" \| "md" \| "lg"` | `md` | Circle preset |
+| `color` | `string` | `colors.colorPrimary` | Ring and fill color when checked |
+| `disabled` | `boolean` | `false` | Blocks presses and dims the control to 50% opacity |
+| …rest | `PressableProps` | — | Forwarded to `Pressable` (including `style`, `hitSlop`) |
+
+Sizes:
+
+| `size` | Circle | Dot | Border |
+| --- | --- | --- | --- |
+| `sm` | 20 | 8 | 2 |
+| `md` | 24 | 10 | 2 |
+| `lg` | 30 | 12 | 2 |
+
+Behavior notes:
+
+- Controlled-only: pass `checked` and update it from `onCheckedChange`. Without a
+  state update the circle will not change.
+- The fill and border animate with `interpolateColor` over 200 ms; the dot fades
+  in and scales from `0.5` to `1`.
+- In a group, keep a single selected value and check each option against it:
+  `onCheckedChange={() => setValue(option)}`.
+- `sm` circles get `hitSlop: 8` by default so the touch target stays usable; pass
+  your own `hitSlop` to override it.
+- `accessibilityRole="radio"` and `accessibilityState.checked` are set from
+  `checked`; `disabled` is reflected in `accessibilityState` and blocks presses.
+
+```tsx
+<ThemedRadioButton checked={plan === "free"} onCheckedChange={() => setPlan("free")} />
+<ThemedRadioButton size="lg" checked={selected} onCheckedChange={setSelected} />
+<ThemedRadioButton checked={true} disabled />
 ```
 
 ---

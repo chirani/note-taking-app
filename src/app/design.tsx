@@ -2,6 +2,7 @@ import {
   ThemedButton,
   ThemedCheckbox,
   ThemedIconButton,
+  ThemedRadioButton,
   ThemedScrollView,
   ThemedText,
   ThemedTextInput,
@@ -17,6 +18,7 @@ export default function DesignScreen() {
   const [largeToggleValue, setLargeToggleValue] = useState(true);
   const [checkboxChecked, setCheckboxChecked] = useState(false);
   const [largeCheckboxChecked, setLargeCheckboxChecked] = useState(true);
+  const [radioValue, setRadioValue] = useState("one");
 
   return (
     <>
@@ -217,6 +219,51 @@ export default function DesignScreen() {
           </View>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
             <ThemedCheckbox checked disabled />
+            <ThemedText size="small" color={colors.colorBaseContent}>
+              Disabled
+            </ThemedText>
+          </View>
+        </View>
+        <View style={{ height: 16 }} />
+        <View style={{ gap: 16, alignItems: "flex-start" }}>
+          <ThemedText
+            size="h3"
+            color={colors.colorSecondary}
+            style={{ marginBottom: 16 }}
+          >
+            Radio Button Styles
+          </ThemedText>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
+            <ThemedRadioButton
+              checked={radioValue === "one"}
+              onCheckedChange={() => setRadioValue("one")}
+            />
+            <ThemedText size="small" color={colors.colorBaseContent}>
+              Option One
+            </ThemedText>
+          </View>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
+            <ThemedRadioButton
+              size="sm"
+              checked={radioValue === "two"}
+              onCheckedChange={() => setRadioValue("two")}
+            />
+            <ThemedText size="small" color={colors.colorBaseContent}>
+              Small
+            </ThemedText>
+          </View>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
+            <ThemedRadioButton
+              size="lg"
+              checked={radioValue === "three"}
+              onCheckedChange={() => setRadioValue("three")}
+            />
+            <ThemedText size="small" color={colors.colorBaseContent}>
+              Large
+            </ThemedText>
+          </View>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
+            <ThemedRadioButton checked disabled />
             <ThemedText size="small" color={colors.colorBaseContent}>
               Disabled
             </ThemedText>
