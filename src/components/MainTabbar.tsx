@@ -5,11 +5,13 @@ import {
 } from "@react-native-vector-icons/ionicons";
 import type { BottomTabBarProps } from "expo-router/tabs";
 import { useEffect } from "react";
-import { Dimensions, Text, TouchableOpacity } from "react-native";
+import {
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+} from "react-native";
 import Animated, { useSharedValue, withSpring } from "react-native-reanimated";
 import { ThemedView } from "./ui";
-
-const windowWidth = Dimensions.get("window").width;
 
 const RouteInfo: Record<string, { icon: IoniconsIconName; title: string }> = {
   index: {
@@ -27,21 +29,24 @@ const MainTabbar = ({
   descriptors,
   emitter,
   navigateToTab,
+  insets,
 }: BottomTabBarProps) => {
   const { colors } = useTheme();
+  const { width: windowWidth } = useWindowDimensions();
+  const tabWidth = windowWidth / state.routes.length;
   const translateX = useSharedValue(0);
 
   useEffect(() => {
-    translateX.value = withSpring(
-      (windowWidth / state.routes.length) * state.index,
-      {
-        duration: 300,
-      },
-    );
-  }, [state.index, state.routes.length, translateX]);
+    translateX.set(withSpring(tabWidth * state.index, { duration: 300 }));
+  }, [state.index, tabWidth, translateX]);
 
   return (
-    <>
+    <ThemedView
+      style={{
+        backgroundColor: colors.colorBase100,
+        paddingBottom: insets.bottom,
+      }}
+    >
       <ThemedView
         style={{
           height: 4,
@@ -55,8 +60,7 @@ const MainTabbar = ({
             marginStart: translateX,
             backgroundColor: colors.colorPrimary,
             height: 4,
-            width: "50%", // 100% divided by the number of tabs
-            paddingHorizontal: 12,
+            width: `${100 / state.routes.length}%`,
           }}
         />
       </ThemedView>
@@ -69,6 +73,9 @@ const MainTabbar = ({
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
           const isFocused = state.index === index;
+          const info = RouteInfo[route.name];
+          const icon = info?.icon ?? "ellipse";
+          const title = info?.title ?? options.title ?? route.name;
 
           const onPress = () => {
             const event = emitter.emit({
@@ -91,11 +98,13 @@ const MainTabbar = ({
 
           return (
             <TouchableOpacity
-              key={index}
+              key={route.key}
               activeOpacity={0.6}
               accessibilityRole="button"
               accessibilityState={isFocused ? { selected: true } : {}}
-              accessibilityLabel={options.tabBarAccessibilityLabel}
+              accessibilityLabel={
+                options.tabBarAccessibilityLabel ?? title
+              }
               onPress={onPress}
               onLongPress={onLongPress}
               style={{
@@ -105,7 +114,7 @@ const MainTabbar = ({
               }}
             >
               <Ionicons
-                name={RouteInfo[route.name].icon}
+                name={icon}
                 size={20}
                 color={
                   isFocused ? colors.colorPrimary : colors.colorBaseContent
@@ -119,13 +128,13 @@ const MainTabbar = ({
                   marginTop: 3,
                 }}
               >
-                {RouteInfo[route.name].title}
+                {title}
               </Text>
             </TouchableOpacity>
           );
         })}
       </ThemedView>
-    </>
+    </ThemedView>
   );
 };
 

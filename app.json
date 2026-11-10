@@ -21,10 +21,6 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.anonymous.obsidi3"
     },
-    "web": {
-      "output": "server",
-      "favicon": "./assets/images/favicon.png"
-    },
     "plugins": [
       "expo-router",
       [

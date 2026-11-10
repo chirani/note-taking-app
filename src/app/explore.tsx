@@ -1,32 +1,25 @@
-import { BottomTabInset, Spacing } from "@/constants/theme";
+import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/theme";
-import { Platform, ScrollView, Text } from "react-native";
+import { ScrollView, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export default function TabTwoScreen() {
+export default function ExploreScreen() {
   const safeAreaInsets = useSafeAreaInsets();
-  const insets = {
-    ...safeAreaInsets,
-    bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
-  };
-  const theme = useTheme();
-
-  const contentPlatformStyle = Platform.select({
-    android: {
-      paddingTop: insets.top,
-      paddingLeft: insets.left,
-      paddingRight: insets.right,
-      paddingBottom: insets.bottom,
-    },
-    web: {
-      paddingTop: Spacing.six,
-      paddingBottom: Spacing.four,
-    },
-  });
+  const { colors } = useTheme();
 
   return (
-    <ScrollView>
-      <Text>Grid One</Text>
+    <ScrollView
+      style={{ backgroundColor: colors.colorBase100 }}
+      contentContainerStyle={{
+        paddingTop: safeAreaInsets.top + Spacing.three,
+        paddingLeft: safeAreaInsets.left + Spacing.three,
+        paddingRight: safeAreaInsets.right + Spacing.three,
+        paddingBottom: safeAreaInsets.bottom + Spacing.three,
+      }}
+    >
+      <Text style={{ color: colors.colorBaseContent, fontSize: 18 }}>
+        Grid One
+      </Text>
     </ScrollView>
   );
 }

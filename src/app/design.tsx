@@ -10,13 +10,8 @@ import {
   ThemedToggle,
 } from "@/components/ui";
 import { useTheme } from "@/hooks/theme";
-import {
-  EditorKeyboardAvoidingView,
-  Toolbar,
-  type EditorBridge,
-} from "@10play/tentap-editor";
-import { useRef, useState } from "react";
-import { View, type ScrollViewInstance } from "react-native";
+import { useState } from "react";
+import { View } from "react-native";
 
 const markdownExample = `# Markdown Editor
 
@@ -28,20 +23,9 @@ Type **bold**, *italic*, or a [link](https://expo.dev).
 1. Numbered item
 2. Second item`;
 
-const richTextExample = `<h1>Rich Text Editor</h1>
-<p>This editor is powered by <strong>10Tap</strong> and TipTap.</p>
-<p>Try <em>italic</em>, <u>underline</u>, or add a <a href="https://expo.dev">link</a>.</p>
-<ul><li>Bullet list item</li><li>Another item</li></ul>
-<ol><li>Numbered item</li><li>Second item</li></ol>`;
-
 export default function DesignScreen() {
   const { colors } = useTheme();
-  const scrollRef = useRef<ScrollViewInstance>(null);
   const [markdown, setMarkdown] = useState(markdownExample);
-  const [richText, setRichText] = useState(richTextExample);
-  const [richTextEditor, setRichTextEditor] = useState<EditorBridge | null>(
-    null,
-  );
   const [toggleValue, setToggleValue] = useState(false);
   const [largeToggleValue, setLargeToggleValue] = useState(true);
   const [checkboxChecked, setCheckboxChecked] = useState(false);
@@ -49,11 +33,10 @@ export default function DesignScreen() {
   const [radioValue, setRadioValue] = useState("one");
 
   return (
-    <EditorKeyboardAvoidingView style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
       <ThemedScrollView
-        ref={scrollRef}
         keyboardShouldPersistTaps="handled"
-        style={{ paddingHorizontal: 16 }}
+        contentContainerStyle={{ paddingHorizontal: 16 }}
       >
         <View style={{ height: 100 }} />
         <View style={{ marginBottom: 16 }}>
@@ -74,22 +57,6 @@ export default function DesignScreen() {
             style={{ marginTop: 8 }}
           >
             {markdown.length} characters
-          </ThemedText>
-        </View>
-        <View style={{ marginBottom: 16 }}>
-          <ThemedText
-            size="h3"
-            color={colors.colorSecondary}
-            style={{ marginBottom: 16 }}
-          >
-            Rich Text Editor (10Tap)
-          </ThemedText>
-          <ThemedText
-            size="small"
-            color={colors.colorBaseContent}
-            style={{ marginTop: 8 }}
-          >
-            {richText.length} characters
           </ThemedText>
         </View>
         <View style={{ marginBottom: 16 }}>
@@ -345,11 +312,6 @@ export default function DesignScreen() {
           <View style={{ height: 100 }} />
         </View>
       </ThemedScrollView>
-      {richTextEditor && (
-        <View style={{ flexDirection: "row" }}>
-          <Toolbar editor={richTextEditor} />
-        </View>
-      )}
-    </EditorKeyboardAvoidingView>
+    </View>
   );
 }

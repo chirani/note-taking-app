@@ -4,19 +4,61 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { SQLiteProvider, type SQLiteDatabase } from "expo-sqlite";
 import { StatusBar } from "expo-status-bar";
-import { View } from "react-native";
+import { useCallback, useState } from "react";
+import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-SplashScreen.preventAutoHideAsync();
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
-async function initializeDatabase(db: SQLiteDatabase) {
-  await migrateDbIfNeeded(db);
-  await SplashScreen.hideAsync();
-}
-
-export default function TabLayout() {
-  const { colors } = useTheme();
+export default function RootLayout() {
+  const { colors, mode } = useTheme();
   const insets = useSafeAreaInsets();
+  const [dbError, setDbError] = useState<Error | null>(null);
+
+  const initializeDatabase = useCallback(async (db: SQLiteDatabase) => {
+    try {
+      await migrateDbIfNeeded(db);
+    } catch (error) {
+      console.error("Failed to initialize the database", error);
+      setDbError(error instanceof Error ? error : new Error(String(error)));
+    } finally {
+      await SplashScreen.hideAsync();
+    }
+  }, []);
+
+  if (dbError) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: colors.colorBase100,
+          paddingTop: insets.top,
+          padding: 24,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <StatusBar
+          style={mode === "dark" ? "dark" : "light"}
+          animated={false}
+        />
+        <Text
+          style={{
+            color: colors.colorBaseContent,
+            fontSize: 18,
+            fontWeight: "bold",
+            marginBottom: 8,
+            textAlign: "center",
+          }}
+        >
+          Couldn&apos;t open the database
+        </Text>
+        <Text style={{ color: colors.colorBaseContent, textAlign: "center" }}>
+          {dbError.message}
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <SQLiteProvider databaseName={DATABASE_NAME} onInit={initializeDatabase}>
@@ -24,7 +66,10 @@ export default function TabLayout() {
         <View
           style={{ height: insets.top, backgroundColor: colors.colorPrimary }}
         />
-        <StatusBar style="light" animated={false} />
+        <StatusBar
+          style={mode === "dark" ? "dark" : "light"}
+          animated={false}
+        />
         <Stack
           screenOptions={{
             headerShown: false,
@@ -36,6 +81,7 @@ export default function TabLayout() {
               contentStyle: { backgroundColor: colors.colorBase100 },
             }}
           />
+          <Stack.Screen name="(tabs)" />
 
           <Stack.Screen
             name="explore"

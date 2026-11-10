@@ -2,7 +2,7 @@ import { ThemedView } from "@/components/ui";
 
 export default function Home() {
   return (
-    <ThemedView>
+    <ThemedView style={{ flex: 1 }}>
       <ThemedView
         style={{
           height: 50,

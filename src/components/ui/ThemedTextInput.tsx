@@ -57,7 +57,11 @@ const ThemedTextInput: React.FC<ThemedTextInputProps> = ({
           toggleColor(0);
           onBlur?.(e);
         }}
-        style={[textInputStyles.input, style]}
+        style={[
+          textInputStyles.input,
+          { color: colors.colorBaseContent },
+          style,
+        ]}
       />
     </Animated.View>
   );

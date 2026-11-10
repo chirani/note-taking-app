@@ -1,3 +1,4 @@
+import { Appearance } from "react-native";
 import { create } from "zustand";
 
 export interface ThemeColors {
@@ -73,6 +74,10 @@ export type ThemeColorKey = keyof ThemeColors;
 
 type ThemeMode = "light" | "dark";
 
+function getSystemMode(): ThemeMode {
+  return Appearance.getColorScheme() === "dark" ? "dark" : "light";
+}
+
 interface ThemeState {
   mode: ThemeMode;
   colors: ThemeColors;
@@ -81,9 +86,11 @@ interface ThemeState {
   setCustomTheme: (colors: ThemeColors) => void;
 }
 
+const initialMode = getSystemMode();
+
 export const useTheme = create<ThemeState>()((set) => ({
-  mode: "light",
-  colors: lightTheme,
+  mode: initialMode,
+  colors: initialMode === "dark" ? darkTheme : lightTheme,
   setMode: (mode) =>
     set({
       mode,
@@ -99,3 +106,10 @@ export const useTheme = create<ThemeState>()((set) => ({
     }),
   setCustomTheme: (colors) => set({ colors }),
 }));
+
+// Keep the in-memory theme in sync with the OS light/dark setting.
+Appearance.addChangeListener(({ colorScheme }) => {
+  if (colorScheme) {
+    useTheme.getState().setMode(colorScheme === "dark" ? "dark" : "light");
+  }
+});
