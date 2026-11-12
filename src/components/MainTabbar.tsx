@@ -5,15 +5,12 @@ import {
 } from "@react-native-vector-icons/ionicons";
 import type { BottomTabBarProps } from "expo-router/tabs";
 import { useEffect } from "react";
-import {
-  Text,
-  TouchableOpacity,
-  useWindowDimensions,
-} from "react-native";
+import { Text, TouchableOpacity, useWindowDimensions } from "react-native";
 import Animated, { useSharedValue, withSpring } from "react-native-reanimated";
 import { ThemedView } from "./ui";
 
 const RouteInfo: Record<string, { icon: IoniconsIconName; title: string }> = {
+  inbox: { icon: "airplane", title: "Inbox" },
   index: {
     icon: "home",
     title: "home",
@@ -102,9 +99,7 @@ const MainTabbar = ({
               activeOpacity={0.6}
               accessibilityRole="button"
               accessibilityState={isFocused ? { selected: true } : {}}
-              accessibilityLabel={
-                options.tabBarAccessibilityLabel ?? title
-              }
+              accessibilityLabel={options.tabBarAccessibilityLabel ?? title}
               onPress={onPress}
               onLongPress={onLongPress}
               style={{
@@ -125,7 +120,7 @@ const MainTabbar = ({
                   color: isFocused
                     ? colors.colorPrimary
                     : colors.colorBaseContent,
-                  marginTop: 3,
+                  marginTop: 0,
                 }}
               >
                 {title}
