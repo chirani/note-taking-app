@@ -61,15 +61,12 @@ export default function RootLayout() {
   }
 
   return (
-    <SQLiteProvider databaseName={DATABASE_NAME} onInit={initializeDatabase}>
-      <View style={{ flex: 1, backgroundColor: "red" }}>
-        <View
-          style={{ height: insets.top, backgroundColor: colors.colorPrimary }}
-        />
-        <StatusBar
-          style={mode === "dark" ? "dark" : "light"}
-          animated={false}
-        />
+    <View style={{ flex: 1, backgroundColor: "red" }}>
+      <View
+        style={{ height: insets.top, backgroundColor: colors.colorPrimary }}
+      />
+      <StatusBar style={mode === "dark" ? "dark" : "light"} animated={false} />
+      <SQLiteProvider databaseName={DATABASE_NAME} onInit={initializeDatabase}>
         <Stack
           screenOptions={{
             headerShown: false,
@@ -89,13 +86,7 @@ export default function RootLayout() {
             }}
           />
         </Stack>
-        <View
-          style={{
-            height: insets.bottom,
-            backgroundColor: colors.colorPrimary,
-          }}
-        />
-      </View>
-    </SQLiteProvider>
+      </SQLiteProvider>
+    </View>
   );
 }

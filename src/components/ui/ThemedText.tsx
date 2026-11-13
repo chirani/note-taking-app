@@ -1,4 +1,5 @@
 import { fontSizes } from "@/config/ui";
+import { useTheme } from "@/hooks/theme";
 import React from "react";
 import {
   Text as RNText,
@@ -23,6 +24,7 @@ const ThemedText: React.FC<ThemedTextProps> = ({
   children,
   ...textProps
 }) => {
+  const { colors } = useTheme();
   let fontSize: number;
   let fontWeight: TextStyle["fontWeight"] = "normal";
 
@@ -51,9 +53,13 @@ const ThemedText: React.FC<ThemedTextProps> = ({
       fontSize = fontSizes.regular;
       fontWeight = "normal";
   }
-  const textColor = color ? { color } : {};
+  const textColor = colors.colorBaseContent;
+
   return (
-    <RNText {...textProps} style={[{ fontSize, fontWeight }, style, textColor]}>
+    <RNText
+      {...textProps}
+      style={[{ fontSize, fontWeight }, style, { color: textColor }]}
+    >
       {children}
     </RNText>
   );
