@@ -27,6 +27,10 @@ const ThemedText: React.FC<ThemedTextProps> = ({
   let fontWeight: TextStyle["fontWeight"] = "normal";
 
   switch (size) {
+    case "x-small":
+      fontSize = fontSizes["x-small"];
+      fontWeight = "normal";
+      break;
     case "small":
       fontSize = fontSizes.small;
       fontWeight = "normal";
@@ -49,10 +53,7 @@ const ThemedText: React.FC<ThemedTextProps> = ({
   }
   const textColor = color ? { color } : {};
   return (
-    <RNText
-      {...textProps}
-      style={[{ fontSize, fontWeight }, style, textColor]}
-    >
+    <RNText {...textProps} style={[{ fontSize, fontWeight }, style, textColor]}>
       {children}
     </RNText>
   );

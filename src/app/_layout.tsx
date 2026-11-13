@@ -62,7 +62,7 @@ export default function RootLayout() {
 
   return (
     <SQLiteProvider databaseName={DATABASE_NAME} onInit={initializeDatabase}>
-      <View style={{ flex: 1, backgroundColor: colors.colorBase100 }}>
+      <View style={{ flex: 1, backgroundColor: "red" }}>
         <View
           style={{ height: insets.top, backgroundColor: colors.colorPrimary }}
         />
@@ -75,14 +75,13 @@ export default function RootLayout() {
             headerShown: false,
           }}
         >
+          <Stack.Screen name="(tabs)" />
           <Stack.Screen
             name="design"
             options={{
               contentStyle: { backgroundColor: colors.colorBase100 },
             }}
           />
-          <Stack.Screen name="(tabs)" />
-
           <Stack.Screen
             name="explore"
             options={{
@@ -90,6 +89,12 @@ export default function RootLayout() {
             }}
           />
         </Stack>
+        <View
+          style={{
+            height: insets.bottom,
+            backgroundColor: colors.colorPrimary,
+          }}
+        />
       </View>
     </SQLiteProvider>
   );

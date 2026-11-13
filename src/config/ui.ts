@@ -7,6 +7,7 @@ export const spacing = {
 };
 
 export const fontSizes = {
+  "x-small": 12,
   regular: 18,
   small: 14,
   h3: 20,

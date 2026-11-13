@@ -5,19 +5,34 @@ import {
 } from "@react-native-vector-icons/ionicons";
 import type { BottomTabBarProps } from "expo-router/tabs";
 import { useEffect } from "react";
-import { Text, TouchableOpacity, useWindowDimensions } from "react-native";
+import { TouchableOpacity, useWindowDimensions } from "react-native";
 import Animated, { useSharedValue, withSpring } from "react-native-reanimated";
-import { ThemedView } from "./ui";
+import { ThemedText as Text, ThemedView } from "./ui";
 
-const RouteInfo: Record<string, { icon: IoniconsIconName; title: string }> = {
-  inbox: { icon: "airplane", title: "Inbox" },
+const RouteInfo: Record<
+  string,
+  { icon: IoniconsIconName; selectedIcon: IoniconsIconName; title: string }
+> = {
   index: {
-    icon: "home",
-    title: "home",
+    icon: "albums-outline",
+    title: "inbox",
+    selectedIcon: "albums",
+  },
+  today: {
+    icon: "sunny-outline",
+    title: "today",
+    selectedIcon: "sunny",
+  },
+
+  upcoming: {
+    icon: "calendar-clear-outline",
+    title: "upcoming",
+    selectedIcon: "calendar-clear",
   },
   profile: {
-    icon: "person",
+    icon: "apps-sharp",
     title: "profile",
+    selectedIcon: "apps-sharp",
   },
 };
 
@@ -72,6 +87,7 @@ const MainTabbar = ({
           const isFocused = state.index === index;
           const info = RouteInfo[route.name];
           const icon = info?.icon ?? "ellipse";
+          const selectedIcon = info?.selectedIcon ?? "ellipse";
           const title = info?.title ?? options.title ?? route.name;
 
           const onPress = () => {
@@ -104,18 +120,20 @@ const MainTabbar = ({
               onLongPress={onLongPress}
               style={{
                 alignItems: "center",
-                padding: 10,
+                paddingTop: 10,
+                paddingBottom: 12,
                 flex: 1,
               }}
             >
               <Ionicons
-                name={icon}
+                name={isFocused ? selectedIcon : icon}
                 size={20}
                 color={
                   isFocused ? colors.colorPrimary : colors.colorBaseContent
                 }
               />
               <Text
+                size="x-small"
                 style={{
                   color: isFocused
                     ? colors.colorPrimary

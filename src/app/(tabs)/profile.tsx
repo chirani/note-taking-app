@@ -8,6 +8,7 @@ export default function Profile() {
           height: 50,
           width: "100%",
           borderBottomWidth: 2,
+          borderColor: "orange",
         }}
       />
     </ThemedView>
