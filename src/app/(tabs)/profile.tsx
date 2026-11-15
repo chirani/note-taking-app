@@ -1,6 +1,7 @@
 import { ThemedText, ThemedView } from "@/components/ui";
 import { spacing } from "@/config/ui";
 import { useTheme } from "@/hooks/theme";
+import { Ionicons } from "@react-native-vector-icons/ionicons/static";
 import { TouchableOpacity } from "react-native";
 
 export default function Profile() {
@@ -11,6 +12,7 @@ export default function Profile() {
       <TouchableOpacity onPressOut={() => toggleTheme()}>
         <ThemedView
           style={{
+            alignItems: "center",
             padding: spacing.xl,
             backgroundColor: colors.colorBase200,
             borderRadius: 4,
@@ -19,7 +21,17 @@ export default function Profile() {
           }}
         >
           <ThemedText size="small">Toggle Theme</ThemedText>
-          <ThemedText size="small">{mode}</ThemedText>
+          <ThemedText size="small">
+            {mode === "dark" ? (
+              <Ionicons size={24} color={colors.colorBaseContent} name="moon" />
+            ) : (
+              <Ionicons
+                size={24}
+                color={colors.colorBaseContent}
+                name="sunny"
+              />
+            )}
+          </ThemedText>
         </ThemedView>
       </TouchableOpacity>
     </ThemedView>

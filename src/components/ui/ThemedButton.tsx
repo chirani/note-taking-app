@@ -69,8 +69,7 @@ const ThemedButton: React.FC<ThemedButtonProps> = ({
   const accentColor = color ?? colors.colorPrimary;
   // Filled buttons put the label on the accent fill; all other variants
   // render the label in the accent color itself.
-  const labelColor =
-    variant === "regular" ? colors.colorBase100 : accentColor;
+  const labelColor = variant === "regular" ? colors.colorBase100 : accentColor;
 
   const buttonStyles = generateStyles(accentColor);
   const textStyles = generateTextStyles(labelColor);
@@ -161,11 +160,7 @@ const ThemedButton: React.FC<ThemedButtonProps> = ({
             <Ionicons size={fontSizes.regular} color={labelColor} name={icon} />
           )}
           <Text
-            style={[
-              textStyles.buttonText,
-              getButtonTextStyle(),
-              textStyle,
-            ]}
+            style={[textStyles.buttonText, getButtonTextStyle(), textStyle]}
           >
             {children}
           </Text>

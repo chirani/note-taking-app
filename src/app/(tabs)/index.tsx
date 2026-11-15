@@ -7,7 +7,7 @@ export default function Home() {
         style={{
           height: 50,
           width: "100%",
-                  borderBottomWidth: 2,
+          borderBottomWidth: 2,
         }}
       ></ThemedView>
     </ThemedView>

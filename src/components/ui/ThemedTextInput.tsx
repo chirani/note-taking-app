@@ -43,9 +43,7 @@ const ThemedTextInput: React.FC<ThemedTextInputProps> = ({
   };
 
   return (
-    <Animated.View
-      style={[textInputStyles.container, animatedStyle]}
-    >
+    <Animated.View style={[textInputStyles.container, animatedStyle]}>
       <TextInput
         {...inputProps}
         placeholderTextColor={colors.colorBaseContent}

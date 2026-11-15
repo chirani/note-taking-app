@@ -2,8 +2,10 @@ import { spacing } from "@/config/ui";
 import { StyleProp, View, ViewStyle } from "react-native";
 import ThemedIconButton, { ThemedIconButtonProps } from "./ThemedIconButton";
 
-export interface FloatingActionButtonProps
-  extends Omit<ThemedIconButtonProps, "shape" | "size"> {
+export interface FloatingActionButtonProps extends Omit<
+  ThemedIconButtonProps,
+  "shape" | "size"
+> {
   /** Distance from the right and bottom edges of the screen. Defaults to `spacing.xl`. */
   offset?: number;
   /** Extra styles for the positioning `View` that wraps the button. */

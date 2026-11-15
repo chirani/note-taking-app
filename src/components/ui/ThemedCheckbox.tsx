@@ -1,11 +1,7 @@
 import { useTheme } from "@/hooks/theme";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { useEffect } from "react";
-import {
-  Pressable,
-  PressableProps,
-  StyleSheet,
-} from "react-native";
+import { Pressable, PressableProps, StyleSheet } from "react-native";
 import Animated, {
   interpolate,
   interpolateColor,

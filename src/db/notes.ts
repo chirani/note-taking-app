@@ -10,21 +10,14 @@ export interface NewNote {
 export type NoteUpdate = Partial<Pick<Note, "title" | "body">>;
 
 export async function listNotes(db: AppDatabase): Promise<Note[]> {
-  return db
-    .select()
-    .from(notes)
-    .orderBy(desc(notes.updatedAt), desc(notes.id));
+  return db.select().from(notes).orderBy(desc(notes.updatedAt), desc(notes.id));
 }
 
 export async function getNote(
   db: AppDatabase,
   id: number,
 ): Promise<Note | null> {
-  const [note] = await db
-    .select()
-    .from(notes)
-    .where(eq(notes.id, id))
-    .limit(1);
+  const [note] = await db.select().from(notes).where(eq(notes.id, id)).limit(1);
   return note ?? null;
 }
 

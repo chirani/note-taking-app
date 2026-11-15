@@ -1,0 +1,16 @@
+node_modules/
+.expo/
+dist/
+web-build/
+coverage/
+
+# Generated native projects
+/ios/
+/android/
+
+# Generated database migrations
+drizzle/
+
+package-lock.json
+*.tsbuildinfo
+expo-env.d.ts

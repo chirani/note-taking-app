@@ -26,8 +26,10 @@ const iconButtonSizes: Record<IconButtonSize, IconButtonDimensions> = {
   xl: { box: 56, radius: 10, icon: 28 },
 };
 
-export interface ThemedIconButtonProps
-  extends Omit<PressableProps, "children"> {
+export interface ThemedIconButtonProps extends Omit<
+  PressableProps,
+  "children"
+> {
   /** Ionicon rendered in the center of the button. */
   icon: IoniconsIconName;
   /**
@@ -71,20 +73,20 @@ const ThemedIconButton: React.FC<ThemedIconButtonProps> = ({
 
   const accentColor = color ?? colors.colorPrimary;
   const dimensions = iconButtonSizes[size];
-  const iconColor =
-    variant === "regular" ? colors.colorBase100 : accentColor;
+  const iconColor = variant === "regular" ? colors.colorBase100 : accentColor;
 
   const variantStyle =
     variant === "outline"
       ? styles.outline
       : variant === "transparent"
-        ? [styles.transparent, { backgroundColor: colors.colorsecondaryContent }]
+        ? [
+            styles.transparent,
+            { backgroundColor: colors.colorsecondaryContent },
+          ]
         : null;
 
   const shapeStyle =
-    shape === "rounded"
-      ? styles.rounded
-      : { borderRadius: dimensions.radius };
+    shape === "rounded" ? styles.rounded : { borderRadius: dimensions.radius };
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],

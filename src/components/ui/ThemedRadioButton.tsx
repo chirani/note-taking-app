@@ -1,10 +1,6 @@
 import { useTheme } from "@/hooks/theme";
 import { useEffect } from "react";
-import {
-  Pressable,
-  PressableProps,
-  StyleSheet,
-} from "react-native";
+import { Pressable, PressableProps, StyleSheet } from "react-native";
 import Animated, {
   interpolate,
   interpolateColor,
