@@ -61,7 +61,7 @@ export default function RootLayout() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: "red" }}>
+    <View style={{ flex: 1 }}>
       <View
         style={{ height: insets.top, backgroundColor: colors.colorPrimary }}
       />
