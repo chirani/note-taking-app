@@ -1,18 +1,24 @@
-import { ThemedText } from "@/components/ui";
-import { fontSizes, spacing } from "@/config/ui";
+import { spacing } from "@/config/ui";
 import { useTheme } from "@/hooks/theme";
-import type { RefObject } from "react";
 import {
+  MaterialDesignIcons,
+  type MaterialDesignIconsIconName,
+} from "@react-native-vector-icons/material-design-icons";
+import { useState, type RefObject } from "react";
+import {
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   View,
-  type TextStyle,
 } from "react-native";
 import type {
   EnrichedMarkdownTextInputInstance,
   StyleState,
 } from "react-native-enriched-markdown";
+import MarkdownLinkDialog, {
+  type MarkdownLinkDialogMode,
+} from "./MarkdownLinkDialog";
 
 export interface MarkdownToolbarProps {
   /** Ref to the editor instance the toolbar controls. */
@@ -21,58 +27,70 @@ export interface MarkdownToolbarProps {
   state?: StyleState | null;
 }
 
-type ToolbarGroup = "inline" | "heading" | "list";
+type ToolbarGroup = "inline" | "heading" | "list" | "link" | "history";
 
 interface ToolbarAction {
   key: string;
-  label: string;
+  icon: MaterialDesignIconsIconName;
   accessibilityLabel: string;
   group: ToolbarGroup;
-  labelStyle?: TextStyle;
-  isActive: (state: StyleState | null | undefined) => boolean;
-  onPress: (editor: EnrichedMarkdownTextInputInstance) => void;
+  isActive?: (state: StyleState | null | undefined) => boolean;
+  isDisabled?: (state: StyleState | null | undefined) => boolean;
+  /** Hidden on iOS/Android, where the underlying command is a no-op. */
+  webOnly?: boolean;
+  /** Opens the link dialog instead of running an editor command. */
+  opensLinkDialog?: boolean;
+  onPress?: (editor: EnrichedMarkdownTextInputInstance) => void;
 }
+
+const inList = (state: StyleState | null | undefined) =>
+  (state?.unorderedList.isActive ?? false) ||
+  (state?.orderedList.isActive ?? false);
 
 const actions: ToolbarAction[] = [
   {
     key: "bold",
-    label: "B",
+    icon: "format-bold",
     accessibilityLabel: "Bold",
     group: "inline",
-    labelStyle: { fontWeight: "bold" },
     isActive: (state) => state?.bold.isActive ?? false,
     onPress: (editor) => editor.toggleBold(),
   },
   {
     key: "italic",
-    label: "I",
+    icon: "format-italic",
     accessibilityLabel: "Italic",
     group: "inline",
-    labelStyle: { fontStyle: "italic" },
     isActive: (state) => state?.italic.isActive ?? false,
     onPress: (editor) => editor.toggleItalic(),
   },
   {
     key: "underline",
-    label: "U",
+    icon: "format-underline",
     accessibilityLabel: "Underline",
     group: "inline",
-    labelStyle: { textDecorationLine: "underline" },
     isActive: (state) => state?.underline.isActive ?? false,
     onPress: (editor) => editor.toggleUnderline(),
   },
   {
     key: "strikethrough",
-    label: "S",
+    icon: "format-strikethrough",
     accessibilityLabel: "Strikethrough",
     group: "inline",
-    labelStyle: { textDecorationLine: "line-through" },
     isActive: (state) => state?.strikethrough.isActive ?? false,
     onPress: (editor) => editor.toggleStrikethrough(),
   },
   {
+    key: "spoiler",
+    icon: "eye-off-outline",
+    accessibilityLabel: "Spoiler",
+    group: "inline",
+    isActive: (state) => state?.spoiler.isActive ?? false,
+    onPress: (editor) => editor.toggleSpoiler(),
+  },
+  {
     key: "heading1",
-    label: "H1",
+    icon: "format-header-1",
     accessibilityLabel: "Heading 1",
     group: "heading",
     isActive: (state) =>
@@ -81,7 +99,7 @@ const actions: ToolbarAction[] = [
   },
   {
     key: "heading2",
-    label: "H2",
+    icon: "format-header-2",
     accessibilityLabel: "Heading 2",
     group: "heading",
     isActive: (state) =>
@@ -89,8 +107,44 @@ const actions: ToolbarAction[] = [
     onPress: (editor) => editor.toggleHeading(2),
   },
   {
+    key: "heading3",
+    icon: "format-header-3",
+    accessibilityLabel: "Heading 3",
+    group: "heading",
+    isActive: (state) =>
+      state?.heading.isActive === true && state.heading.level === 3,
+    onPress: (editor) => editor.toggleHeading(3),
+  },
+  {
+    key: "heading4",
+    icon: "format-header-4",
+    accessibilityLabel: "Heading 4",
+    group: "heading",
+    isActive: (state) =>
+      state?.heading.isActive === true && state.heading.level === 4,
+    onPress: (editor) => editor.toggleHeading(4),
+  },
+  {
+    key: "heading5",
+    icon: "format-header-5",
+    accessibilityLabel: "Heading 5",
+    group: "heading",
+    isActive: (state) =>
+      state?.heading.isActive === true && state.heading.level === 5,
+    onPress: (editor) => editor.toggleHeading(5),
+  },
+  {
+    key: "heading6",
+    icon: "format-header-6",
+    accessibilityLabel: "Heading 6",
+    group: "heading",
+    isActive: (state) =>
+      state?.heading.isActive === true && state.heading.level === 6,
+    onPress: (editor) => editor.toggleHeading(6),
+  },
+  {
     key: "unorderedList",
-    label: "•",
+    icon: "format-list-bulleted",
     accessibilityLabel: "Bullet list",
     group: "list",
     isActive: (state) => state?.unorderedList.isActive ?? false,
@@ -98,23 +152,80 @@ const actions: ToolbarAction[] = [
   },
   {
     key: "orderedList",
-    label: "1.",
+    icon: "format-list-numbered",
     accessibilityLabel: "Numbered list",
     group: "list",
     isActive: (state) => state?.orderedList.isActive ?? false,
     onPress: (editor) => editor.toggleOrderedList(),
+  },
+  {
+    key: "indentList",
+    icon: "format-indent-increase",
+    accessibilityLabel: "Indent list item",
+    group: "list",
+    isDisabled: (state) => !inList(state),
+    onPress: (editor) => editor.indentList(),
+  },
+  {
+    key: "outdentList",
+    icon: "format-indent-decrease",
+    accessibilityLabel: "Outdent list item",
+    group: "list",
+    isDisabled: (state) => !inList(state),
+    onPress: (editor) => editor.outdentList(),
+  },
+  {
+    key: "link",
+    icon: "link-variant",
+    accessibilityLabel: "Insert or edit link",
+    group: "link",
+    isActive: (state) => state?.link.isActive ?? false,
+    opensLinkDialog: true,
+  },
+  {
+    key: "unlink",
+    icon: "link-variant-off",
+    accessibilityLabel: "Remove link",
+    group: "link",
+    isDisabled: (state) => !(state?.link.isActive ?? false),
+    onPress: (editor) => editor.removeLink(),
+  },
+  {
+    key: "undo",
+    icon: "undo",
+    accessibilityLabel: "Undo",
+    group: "history",
+    webOnly: true,
+    onPress: (editor) => editor.undo(),
+  },
+  {
+    key: "redo",
+    icon: "redo",
+    accessibilityLabel: "Redo",
+    group: "history",
+    webOnly: true,
+    onPress: (editor) => editor.redo(),
+  },
+  {
+    key: "copy",
+    icon: "content-copy",
+    accessibilityLabel: "Copy whole note as Markdown",
+    group: "history",
+    onPress: (editor) => editor.copyToClipboard(),
   },
 ];
 
 interface ToolbarButtonProps {
   action: ToolbarAction;
   active: boolean;
+  disabled: boolean;
   onPress: () => void;
 }
 
 const ToolbarButton: React.FC<ToolbarButtonProps> = ({
   action,
   active,
+  disabled,
   onPress,
 }) => {
   const { colors } = useTheme();
@@ -123,24 +234,29 @@ const ToolbarButton: React.FC<ToolbarButtonProps> = ({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={action.accessibilityLabel}
-      accessibilityState={{ selected: active }}
+      accessibilityState={{ selected: active, disabled }}
+      disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
         active && { backgroundColor: colors.colorPrimary },
         pressed && !active && { backgroundColor: colors.colorBase200 },
+        disabled && styles.disabled,
       ]}
     >
-      <ThemedText
-        size="small"
+      <MaterialDesignIcons
+        name={action.icon}
+        size={20}
         color={active ? colors.colorBase100 : colors.colorBaseContent}
-        style={[styles.label, action.labelStyle]}
-      >
-        {action.label}
-      </ThemedText>
+      />
     </Pressable>
   );
 };
+
+interface LinkDialogState {
+  mode: MarkdownLinkDialogMode;
+  initialUrl: string;
+}
 
 /**
  * A compact formatting bar for `MarkdownEditor`. Buttons run the editor's
@@ -151,6 +267,42 @@ const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
   state,
 }) => {
   const { colors } = useTheme();
+  const [linkDialog, setLinkDialog] = useState<LinkDialogState | null>(null);
+
+  const visibleActions = actions.filter(
+    (action) => !action.webOnly || Platform.OS === "web",
+  );
+
+  const handleActionPress = (action: ToolbarAction) => {
+    if (action.opensLinkDialog) {
+      const isEditing = state?.link.isActive ?? false;
+      setLinkDialog({
+        mode: isEditing ? "edit" : "insert",
+        initialUrl: isEditing ? (state?.link.destination ?? "") : "",
+      });
+      return;
+    }
+
+    const editor = editorRef.current;
+    if (!editor) return;
+    editor.focus();
+    action.onPress?.(editor);
+  };
+
+  const handleLinkSubmit = (text: string, url: string) => {
+    const mode = linkDialog?.mode;
+    setLinkDialog(null);
+
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    editor.focus();
+    if (mode === "edit") {
+      editor.setLink(url);
+    } else {
+      editor.insertLink(text, url);
+    }
+  };
 
   return (
     <View
@@ -168,9 +320,9 @@ const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
         keyboardShouldPersistTaps="always"
         contentContainerStyle={styles.content}
       >
-        {actions.map((action, index) => {
+        {visibleActions.map((action, index) => {
           const showSeparator =
-            index > 0 && actions[index - 1].group !== action.group;
+            index > 0 && visibleActions[index - 1].group !== action.group;
 
           return (
             <View key={action.key} style={styles.item}>
@@ -184,18 +336,22 @@ const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
               )}
               <ToolbarButton
                 action={action}
-                active={action.isActive(state)}
-                onPress={() => {
-                  const editor = editorRef.current;
-                  if (!editor) return;
-                  editor.focus();
-                  action.onPress(editor);
-                }}
+                active={action.isActive?.(state) ?? false}
+                disabled={action.isDisabled?.(state) ?? false}
+                onPress={() => handleActionPress(action)}
               />
             </View>
           );
         })}
       </ScrollView>
+      {linkDialog && (
+        <MarkdownLinkDialog
+          mode={linkDialog.mode}
+          initialUrl={linkDialog.initialUrl}
+          onCancel={() => setLinkDialog(null)}
+          onSubmit={handleLinkSubmit}
+        />
+      )}
     </View>
   );
 };
@@ -217,15 +373,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   button: {
-    minWidth: 34,
+    width: 34,
     height: 32,
-    paddingHorizontal: spacing.sm,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 5,
   },
-  label: {
-    fontSize: fontSizes.small,
+  disabled: {
+    opacity: 0.35,
   },
   separator: {
     width: 1,
