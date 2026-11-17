@@ -1,4 +1,7 @@
+import FloatingActionButton from "@/components/ui/FloatingActionButton";
 import { ThemedView } from "@/components/ui";
+import { spacing } from "@/config/ui";
+import { router } from "expo-router";
 
 export default function Home() {
   return (
@@ -10,6 +13,12 @@ export default function Home() {
           borderBottomWidth: 2,
         }}
       ></ThemedView>
+      <FloatingActionButton
+        icon="add"
+        accessibilityLabel="New todo"
+        offset={spacing.xl}
+        onPress={() => router.push("/todos/new")}
+      />
     </ThemedView>
   );
 }
