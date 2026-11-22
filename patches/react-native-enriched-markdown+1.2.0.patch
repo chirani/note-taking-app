@@ -1,0 +1,102 @@
+diff --git a/node_modules/react-native-enriched-markdown/android/src/main/java/com/swmansion/enriched/markdown/input/EnrichedMarkdownTextInputView.kt b/node_modules/react-native-enriched-markdown/android/src/main/java/com/swmansion/enriched/markdown/input/EnrichedMarkdownTextInputView.kt
+index fae0ff8..113bf0d 100644
+--- a/node_modules/react-native-enriched-markdown/android/src/main/java/com/swmansion/enriched/markdown/input/EnrichedMarkdownTextInputView.kt
++++ b/node_modules/react-native-enriched-markdown/android/src/main/java/com/swmansion/enriched/markdown/input/EnrichedMarkdownTextInputView.kt
+@@ -12,6 +12,7 @@ import android.text.SpannableString
+ import android.text.TextPaint
+ import android.util.Log
+ import android.util.TypedValue
++import android.view.ActionMode
+ import android.view.Gravity
+ import android.view.KeyEvent
+ import android.view.MotionEvent
+@@ -58,6 +59,7 @@ import com.swmansion.enriched.markdown.input.model.StyleType
+ import com.swmansion.enriched.markdown.input.spans.applyBodyLineHeightSpan
+ import com.swmansion.enriched.markdown.input.spans.bodyLineMinimumFontMetrics
+ import com.swmansion.enriched.markdown.input.toolbar.InputContextMenu
++import com.swmansion.enriched.markdown.input.toolbar.SuppressedSelectionActionMode
+ import com.swmansion.enriched.markdown.utils.common.LinkRegexConfig
+ import com.swmansion.enriched.markdown.utils.input.AutoCapitalizeUtils
+ import kotlin.math.ceil
+@@ -227,6 +229,24 @@ class EnrichedMarkdownTextInputView(
+     runAsATransaction { super.setTextIsSelectable(true) }
+   }
+ 
++  /**
++   * Replaces the platform's floating text-selection toolbar with a no-op action mode.
++   *
++   * A non-null result tells [android.widget.Editor] that the action mode started, which
++   * keeps the selection and drag handles visible. The no-op mode never draws a menu, so
++   * the app's own MarkdownToolbar is the only formatting UI. Collapsed-caret actions
++   * (the paste bubble) keep the native behavior.
++   */
++  override fun startActionMode(
++    callback: ActionMode.Callback?,
++    type: Int,
++  ): ActionMode? {
++    if (type == ActionMode.TYPE_FLOATING && selectionStart != selectionEnd) {
++      return SuppressedSelectionActionMode(context, callback)
++    }
++    return super.startActionMode(callback, type)
++  }
++
+   override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
+     super.onWindowFocusChanged(hasWindowFocus)
+     // The autofocus keyboard request may run before the window has IME focus (e.g. while a modal is
+diff --git a/node_modules/react-native-enriched-markdown/android/src/main/java/com/swmansion/enriched/markdown/input/toolbar/SuppressedSelectionActionMode.kt b/node_modules/react-native-enriched-markdown/android/src/main/java/com/swmansion/enriched/markdown/input/toolbar/SuppressedSelectionActionMode.kt
+new file mode 100644
+index 0000000..37a925a
+--- /dev/null
++++ b/node_modules/react-native-enriched-markdown/android/src/main/java/com/swmansion/enriched/markdown/input/toolbar/SuppressedSelectionActionMode.kt
+@@ -0,0 +1,51 @@
++package com.swmansion.enriched.markdown.input.toolbar
++
++import android.content.Context
++import android.view.ActionMode
++import android.view.Menu
++import android.view.MenuInflater
++import android.view.View
++
++/**
++ * A no-op [ActionMode] used in place of Android's floating text-selection toolbar.
++ *
++ * Returning a non-null mode from [android.widget.TextView.startActionMode] keeps the
++ * platform selection and its drag handles alive, while this implementation draws
++ * nothing on screen. [finish] is forwarded to the original callback so TextView's
++ * internal selection cleanup still runs.
++ */
++internal class SuppressedSelectionActionMode(
++  context: Context,
++  private val callback: ActionMode.Callback?,
++) : ActionMode() {
++  private val menuInflater = MenuInflater(context)
++  private var finished = false
++
++  override fun setTitle(title: CharSequence?) = Unit
++
++  override fun setTitle(resId: Int) = Unit
++
++  override fun setSubtitle(subtitle: CharSequence?) = Unit
++
++  override fun setSubtitle(resId: Int) = Unit
++
++  override fun setCustomView(view: View?) = Unit
++
++  override fun getCustomView(): View? = null
++
++  override fun getMenu(): Menu? = null
++
++  override fun getMenuInflater(): MenuInflater = menuInflater
++
++  override fun getTitle(): CharSequence? = null
++
++  override fun getSubtitle(): CharSequence? = null
++
++  override fun invalidate() = Unit
++
++  override fun finish() {
++    if (finished) return
++    finished = true
++    callback?.onDestroyActionMode(this)
++  }
++}

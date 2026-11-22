@@ -72,10 +72,17 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
           setStyleState(state);
           onChangeState?.(state);
         }}
+
         markdownStyle={{
-          strong: { color: colors.colorPrimary },
-          em: { color: colors.colorSecondary },
-          link: { color: colors.colorInfo },
+          h1: { color: colors.colorBaseContent },
+          h2: { color: colors.colorBaseContent },
+          h3: { color: colors.colorBaseContent },
+          h4: { color: colors.colorBaseContent },
+          h5: { color: colors.colorBaseContent },
+          h6: { color: colors.colorBaseContent },
+          strong: { color: colors.colorBaseContent },
+          em: { color: colors.colorBaseContent },
+          link: { color: colors.colorBaseContent },
           ...markdownStyle,
         }}
         style={

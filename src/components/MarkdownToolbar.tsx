@@ -11,6 +11,8 @@ import {
   ScrollView,
   StyleSheet,
   View,
+  type StyleProp,
+  type ViewStyle,
 } from "react-native";
 import type {
   EnrichedMarkdownTextInputInstance,
@@ -25,6 +27,8 @@ export interface MarkdownToolbarProps {
   editorRef: RefObject<EnrichedMarkdownTextInputInstance | null>;
   /** Current editor style state, used to highlight active buttons. */
   state?: StyleState | null;
+  /** Extra styles for the toolbar container. */
+  style?: StyleProp<ViewStyle>;
 }
 
 type ToolbarGroup = "inline" | "heading" | "list" | "link" | "history";
@@ -265,6 +269,7 @@ interface LinkDialogState {
 const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
   editorRef,
   state,
+  style,
 }) => {
   const { colors } = useTheme();
   const [linkDialog, setLinkDialog] = useState<LinkDialogState | null>(null);
@@ -312,6 +317,7 @@ const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
           backgroundColor: colors.colorBase100,
           borderColor: colors.colorBase300,
         },
+        style,
       ]}
     >
       <ScrollView
@@ -373,8 +379,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   button: {
-    width: 34,
-    height: 32,
+    width: 44,
+    height: 42,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 5,
