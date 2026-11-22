@@ -8,7 +8,7 @@ import {
   ThemedView,
 } from "@/components/ui";
 import { fontSizes, spacing } from "@/config/ui";
-import { createTodo } from "@/db";
+import { createDraft, createTodo } from "@/db";
 import { useDb } from "@/hooks/useDb";
 import { useTheme } from "@/hooks/theme";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
@@ -76,6 +76,29 @@ export default function NewTodoScreen() {
   const [styleState, setStyleState] = useState<StyleState | null>(null);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [saving, setSaving] = useState(false);
+  const draftDataRef = useRef({ title, body, dueDate });
+  const didSaveRef = useRef(false);
+
+  useEffect(() => {
+    draftDataRef.current = { title, body, dueDate };
+  }, [title, body, dueDate]);
+
+  // Leaving the screen without saving keeps the unfinished todo as a draft.
+  // A successfully saved todo must not produce one.
+  useEffect(() => {
+    return () => {
+      if (didSaveRef.current) return;
+
+      const draft = draftDataRef.current;
+      if (!draft.title.trim() && !draft.body.trim()) return;
+
+      void createDraft(db, {
+        title: draft.title.trim(),
+        body: draft.body.length > 0 ? draft.body : undefined,
+        dueDate: toISODateTime(draft.dueDate),
+      }).catch((error) => console.error("Failed to save todo draft", error));
+    };
+  }, [db]);
 
   useEffect(() => {
     const showEvent =
@@ -108,6 +131,7 @@ export default function NewTodoScreen() {
         body: body.length > 0 ? body : undefined,
         dueDate: toISODateTime(dueDate),
       });
+      didSaveRef.current = true;
       router.back();
     } catch (error) {
       console.error("Failed to create todo", error);
