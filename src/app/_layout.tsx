@@ -82,6 +82,12 @@ export default function RootLayout() {
               }}
             />
             <Stack.Screen
+              name="drafts"
+              options={{
+                contentStyle: { backgroundColor: colors.colorBase100 },
+              }}
+            />
+            <Stack.Screen
               name="explore"
               options={{
                 contentStyle: { backgroundColor: colors.colorBase100 },

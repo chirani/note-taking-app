@@ -11,6 +11,7 @@ import { fontSizes, spacing } from "@/config/ui";
 import { createDraft, createTodo } from "@/db";
 import { useDb } from "@/hooks/useDb";
 import { useTheme } from "@/hooks/theme";
+import { formatDueDate, toISODateTime } from "@/lib/date";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { DateTimePicker } from "@expo/ui/community/datetime-picker";
 import { router } from "expo-router";
@@ -30,14 +31,6 @@ import type {
 } from "react-native-enriched-markdown";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const pad = (value: number) => String(value).padStart(2, "0");
-
-/** Local `YYYY-MM-DDTHH:mm`, matching the format stored in the `due_date` column. */
-const toISODateTime = (date: Date): string =>
-  `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(
-    date.getHours(),
-  )}:${pad(date.getMinutes())}`;
-
 /**
  * The last day of next month at 9:00 AM, matching the database column's default
  * day so an untouched todo behaves the same as one saved explicitly.
@@ -48,16 +41,6 @@ const endOfNextMonth = (): Date => {
   date.setHours(9, 0, 0, 0);
   return date;
 };
-
-const dueDateFormatter = new Intl.DateTimeFormat(undefined, {
-  month: "short",
-  day: "numeric",
-  year: "numeric",
-  hour: "numeric",
-  minute: "2-digit",
-});
-
-const formatDueDate = (date: Date): string => dueDateFormatter.format(date);
 
 /** Whether the device/locale displays times in 24-hour format. */
 const uses24HourTime = new Intl.DateTimeFormat(undefined, { hour: "numeric" })
