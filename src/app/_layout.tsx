@@ -1,5 +1,6 @@
 import { DATABASE_NAME, migrateDbIfNeeded } from "@/db";
 import { useTheme } from "@/hooks/theme";
+import { QueryProvider } from "@/providers/query-provider";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { SQLiteProvider, type SQLiteDatabase } from "expo-sqlite";
@@ -67,25 +68,27 @@ export default function RootLayout() {
       />
       <StatusBar style={mode === "dark" ? "dark" : "light"} animated={false} />
       <SQLiteProvider databaseName={DATABASE_NAME} onInit={initializeDatabase}>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-          }}
-        >
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen
-            name="design"
-            options={{
-              contentStyle: { backgroundColor: colors.colorBase100 },
+        <QueryProvider>
+          <Stack
+            screenOptions={{
+              headerShown: false,
             }}
-          />
-          <Stack.Screen
-            name="explore"
-            options={{
-              contentStyle: { backgroundColor: colors.colorBase100 },
-            }}
-          />
-        </Stack>
+          >
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen
+              name="design"
+              options={{
+                contentStyle: { backgroundColor: colors.colorBase100 },
+              }}
+            />
+            <Stack.Screen
+              name="explore"
+              options={{
+                contentStyle: { backgroundColor: colors.colorBase100 },
+              }}
+            />
+          </Stack>
+        </QueryProvider>
       </SQLiteProvider>
     </View>
   );
