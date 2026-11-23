@@ -40,7 +40,7 @@ export default function Home() {
   return (
     <ThemedView style={{ flex: 1, gap: spacing.md }}>
       <ThemedView style={styles.header} />
-      {draftCount && (
+      {draftCount > 0 && (
         <View style={styles.draftsBar}>
           <ThemedButton
             variant="outline"
